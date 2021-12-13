@@ -5,7 +5,7 @@ I created this program in order to show my friends how bad the internet is at my
 
 Output examples:
 
-![Alt text](./datum/10-18-2021_packetLoss.png?raw=true "Test")
+![Alt text](https://github.com/alexanderono7/Packet-Loss-Tracker/blob/main/example_images/10-13-2021_packetLoss.png "Test")
 
 # Dependencies:
 
