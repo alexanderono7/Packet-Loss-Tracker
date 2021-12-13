@@ -10,14 +10,13 @@ Output example:
 (Output images will be generated in the ./data directory)
 # Dependencies:
 
-fping (for linux command line)
+fping
 
-apscheduler (pip install apscheduler)
+Install with:
 
+sudo apt-get install fping
 # To run this program:
 
-Using Linux:
+(Using Linux):
 
 python3 packetLoss.py
-
-Created by Alexander Ono
