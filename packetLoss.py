@@ -1,27 +1,15 @@
 from datetime import datetime
+import subprocess
 import os
-from os import times
-import subprocess  # for unix commands
-from subprocess import Popen, PIPE  # for unix commands
-import re  # regex
-
-# graphing
+import re
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
-
-
-# get current time in h:m:s military time format (unused)
-def getTime():
-    current = datetime.now()
-    current = current.strftime("%H:%M:%S")
-    return current
-
 
 # ping the ip address, with a data point being printed once every (interval) (units) over a
 # total of (quantity)(units).
 # Add this information to (filePath)
 def ping(quantity, units, filePath):
-    if(units == "m"):
+    if units == "m":
         interval = 1
     else:
         interval = 60
@@ -114,6 +102,7 @@ def graph(x, y, today, filePath, increments, xunits):
     ax.xaxis.set_major_locator(fmt)
     ax.plot(x, y)
     plt.savefig(filePath[:-4], dpi=300)
+    print("\nOutput saved to " + filePath[:-4] + ".png\n")
 
 
 def execute(quantity, units, increments, xunits):
@@ -128,8 +117,8 @@ def execute(quantity, units, increments, xunits):
 
     # Add number to filename if a file with the same name already exists
     i = 1
-    if os.path.exists(path + "/" + fileName + ".txt"):
-        while(os.path.exists(path + "/" + fileName + "[" + str(i) + "]" + ".txt")):
+    if os.path.exists(path + "/" + fileName + ".png"):
+        while os.path.exists(path + "/" + fileName + "[" + str(i) + "]" + ".png"):
             i += 1
         fileName += "[" + str(i) + "]"
 
@@ -137,13 +126,13 @@ def execute(quantity, units, increments, xunits):
     path = path + "/" + fileName
     file = open(path, "a+")
     file.close()
-    
-    ping(quantity, units, path) #ping 1.1.1.1
-    combineLines(path) #process txt file
+
+    ping(quantity, units, path)  # ping 1.1.1.1
+    combineLines(path)  # process txt file
     n = countLines(path)
 
     darr = [[None for x in range(2)] for y in range(n)]  # data array (darr)
-    darr = parseData(path, darr, n) # parse txt data, insert it into array
+    darr = parseData(path, darr, n)  # parse txt data, insert it into array
 
     # create two separate arrays of proper object types, and store the data in them
     times = [datetime for tempDT in range(n)]
@@ -153,22 +142,19 @@ def execute(quantity, units, increments, xunits):
 
     # graphing
     graph(times, loss, today, path, int(increments), xunits)
-    
-    #delete txt files
+
+    # delete txt files
     removeLogs = "rm ./data/*.txt"
     subprocess.call(removeLogs, shell=True)
 
 
 def main():
-    initial = "Express input in this format: \n10m\n^This would track for 10 minutes.\n\n5h\n^This would track for 5 hours, etc.\n\n(Days/seconds are not currently supported as a quantity).\n\nEnter q to quit.\nEnter h to repeat this message."
-    error = "There appears to be an issue with the last input. Please try again.\n"
-    print(
-        "================================================================================"
-    )
+    bar = "\n================================================================================\n"
+    initial = bar + "Express input in this format: \n10m\n^This would track for 10 minutes.\n\n5h\n^This would track for 5 hours, etc.\n\n(Days/seconds are not currently supported as a quantity).\n\nEnter q to quit.\nEnter h to repeat this message." + bar
+    error = bar + "There appears to be an issue with the last input. Please try again." + bar
+   
     print(initial)
-    print(
-        "================================================================================"
-    )
+   
     while True:
         userInput = input("Time to track packet loss (%)?: \n")
         userInput.lower
@@ -176,19 +162,11 @@ def main():
         if userInput == "q":
             exit(0)
         elif userInput == "h":
-            print(
-                "================================================================================"
-            )
             print(initial)
-            print(
-                "================================================================================"
-            )
         elif re.fullmatch("(\d+)(m|h)", userInput) == None:
             print(error)
         else:
-            quantity = re.search("(\d+)", userInput)[
-                0
-            ]  # how many units of time the program will track packet loss for
+            quantity = re.search("(\d+)", userInput)[0]  # how many units of time the program will track packet loss for
             units = re.search("(m|h)", userInput)[0]  # units of time for quantity
             axisInput = input("Enter the x-axis gradiations in the same format: \n")
             if re.fullmatch("(\d+)(m|h)", axisInput) == None:
