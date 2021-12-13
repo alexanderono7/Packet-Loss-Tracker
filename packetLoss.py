@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 
-# get current time in h:m:s military time format #unused...
+# get current time in h:m:s military time format (unused)
 def getTime():
     current = datetime.now()
     current = current.strftime("%H:%M:%S")
@@ -106,32 +106,35 @@ def graph(x, y, today, filePath):
     ax.plot(x, y)
     plt.savefig(filePath[:-4], dpi=300)
 
-
-# use today's date as txt filename
-today = datetime.today().strftime("%m-%d-%Y")
-fileName = today + "_packetLoss.txt"
-filePath = "./data/" + fileName
-file = open(filePath, "a+")
-file.close()
-
-
-########################################## # CHANGE VALUES HERE # ##########################################
-hours = 3  # overall time over which data will be collected (hours)
-inter = 300  # time interval for a single data point (seconds), e.g. 5 = 1 data point over 5 seconds
-ping(hours, inter, filePath)
-combineLines(filePath)
-n = countLines(filePath)
-########################################## # CHANGE VALUES HERE # ##########################################
+def main():
+    # use today's date as txt filename
+    today = datetime.today().strftime("%m-%d-%Y")
+    fileName = today + "_packetLoss.txt"
+    filePath = "./data/" + fileName
+    file = open(filePath, "a+")
+    file.close()
 
 
-darr = [[None for x in range(2)] for y in range(n)]  # data array (darr)
-darr = parseData(filePath, darr, n)
+    ########################################## # CHANGE VALUES HERE # ##########################################
+    hours = 3  # overall time over which data will be collected (hours)
+    inter = 300  # time interval for a single data point (seconds), e.g. 5 = 1 data point over 5 seconds
+    ping(hours, inter, filePath)
+    combineLines(filePath)
+    n = countLines(filePath)
+    ########################################## # CHANGE VALUES HERE # ##########################################
 
-# create two separate arrays of proper object types, and store the data in them
-times = [datetime for tempDT in range(n)]
-loss = [0 for tempint in range(n)]
-times = separateArraysTime(darr, times, n)
-loss = separateArraysLoss(darr, loss, n)
 
-# graphing
-graph(times, loss, today, filePath)
+    darr = [[None for x in range(2)] for y in range(n)]  # data array (darr)
+    darr = parseData(filePath, darr, n)
+
+    # create two separate arrays of proper object types, and store the data in them
+    times = [datetime for tempDT in range(n)]
+    loss = [0 for tempint in range(n)]
+    times = separateArraysTime(darr, times, n)
+    loss = separateArraysLoss(darr, loss, n)
+
+    # graphing
+    graph(times, loss, today, filePath)
+
+if __name__ == "__main__":
+    main()
