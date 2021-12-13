@@ -8,5 +8,10 @@ fping (for linux command line)
 
 apscheduler (pip install apscheduler)
 
+# To run this program:
 
-Created by A. Ono
+Using Linux:
+
+python3 packetLoss.py
+
+Created by Alexander Ono
