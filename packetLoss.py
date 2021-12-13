@@ -106,14 +106,14 @@ def graph(x, y, today, filePath):
     ax.plot(x, y)
     plt.savefig(filePath[:-4], dpi=300)
 
-def main():
+
+def execute(quantity, units, increments, xunits):
     # use today's date as txt filename
     today = datetime.today().strftime("%m-%d-%Y")
     fileName = today + "_packetLoss.txt"
     filePath = "./data/" + fileName
     file = open(filePath, "a+")
     file.close()
-
 
     ########################################## # CHANGE VALUES HERE # ##########################################
     hours = 3  # overall time over which data will be collected (hours)
@@ -122,7 +122,6 @@ def main():
     combineLines(filePath)
     n = countLines(filePath)
     ########################################## # CHANGE VALUES HERE # ##########################################
-
 
     darr = [[None for x in range(2)] for y in range(n)]  # data array (darr)
     darr = parseData(filePath, darr, n)
@@ -135,6 +134,35 @@ def main():
 
     # graphing
     graph(times, loss, today, filePath)
+
+
+def main():
+    initial = "Express input in this format: \n10m\n^This would track for 10 minutes.\n\n5h\n^This would track for 5 hours, etc.\n\n(Days/seconds are not currently supported as a quantity).\n\nEnter q to quit.\nEnter h to repeat this message."
+    error = "There appears to be an issue with the last input. Please try again.\n"
+    print("================================================================================")
+    print(initial)
+    print("================================================================================")
+    while True:
+        userInput = input("Time to track packet loss (%)?: \n")
+        userInput.lower
+        userInput.strip
+        if userInput == "q":
+            exit(0)
+        elif userInput == "h":
+            print(initial)
+        elif re.fullmatch("(\d+)(m|h)", userInput) == None:
+            print(error)
+        else:
+            quantity = re.search("(\d+)", userInput)[0]
+            units = re.search("(m|h)", userInput)[0]
+            axisInput = input("Enter the x-axis gradiations in the same format: \n")
+            if re.fullmatch("(\d+)(m|h)", axisInput) == None:
+                print(error)
+            else:
+                increments = re.search("(\d+)", axisInput)[0]
+                axisUnits = re.search("(m|h)", axisInput)[0]
+                execute(quantity, units, increments, axisUnits)
+
 
 if __name__ == "__main__":
     main()
