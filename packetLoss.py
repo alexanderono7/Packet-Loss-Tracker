@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 from os import times
 import subprocess  # for unix commands
 from subprocess import Popen, PIPE  # for unix commands
@@ -16,13 +17,17 @@ def getTime():
     return current
 
 
-# ping the ip address, with a data point being printed once every (inter) hours over a total of (hours). Add to (filePath)
-def ping(hours, inter, filePath):
+# ping the ip address, with a data point being printed once every (interval) (units) over a 
+# total of (quantity)(units). 
+# Add this information to (filePath)
+def ping(quantity, units, filePath):
+    interval = 1
     command = (
         "timeout "
-        + str(hours)
-        + "h fping 1.1.1.1 -l -b 4096 -p 33.3 -o -D -Q "
-        + str(inter)
+        + str(quantity) + " "
+        + str(units)
+        + " fping 1.1.1.1 -l -b 4096 -p 33.3 -o -D -Q "
+        + str(interval)
         + " 2>&1 | tee "
         + filePath
     )
@@ -65,7 +70,7 @@ def parseData(filePath, darr, n):
 
         i += 1
     file.close()
-    return darr  # bad data structure practice...
+    return darr
 
 
 # convert string timestamps from darr[0] to timestamp objects and add them to a separate array
@@ -85,7 +90,7 @@ def separateArraysLoss(darr, loss, n):
     return loss
 
 
-def graph(x, y, today, filePath):
+def graph(x, y, today, filePath, increments, xunits):
     fig, ax = plt.subplots()
     ax.plot(x, y)
 
@@ -99,9 +104,11 @@ def graph(x, y, today, filePath):
     fig.autofmt_xdate()  # beautify x-labels
 
     # set x-axis to have ticks of 1 hr length
-    fmt_hours = mdates.HourLocator(interval=1)
-    fmt_min = mdates.MinuteLocator(interval=15)  # alternative minute formatter
-    ax.xaxis.set_major_locator(fmt_hours)
+    if(xunits == 'h'):
+        fmt = mdates.HourLocator(interval=increments)
+    else:
+        fmt = mdates.MinuteLocator(interval=increments)  # alternative minute formatter
+    ax.xaxis.set_major_locator(fmt)
 
     ax.plot(x, y)
     plt.savefig(filePath[:-4], dpi=300)
@@ -111,20 +118,26 @@ def execute(quantity, units, increments, xunits):
     # use today's date as txt filename
     today = datetime.today().strftime("%m-%d-%Y")
     fileName = today + "_packetLoss.txt"
-    filePath = "./data/" + fileName
-    file = open(filePath, "a+")
+    path = "./data"
+    
+    #create directory ./data if it does not already exist
+    if(not os.path.exists(path)):
+         createDir = "mkdir " + path   
+         subprocess.call(createDir, shell=True)
+    path = path + "/" + fileName
+    file = open(path, "a+")
     file.close()
 
     ########################################## # CHANGE VALUES HERE # ##########################################
     hours = 3  # overall time over which data will be collected (hours)
     inter = 300  # time interval for a single data point (seconds), e.g. 5 = 1 data point over 5 seconds
-    ping(hours, inter, filePath)
-    combineLines(filePath)
-    n = countLines(filePath)
+    ping(quantity, units, path)
+    combineLines(path)
+    n = countLines(path)
     ########################################## # CHANGE VALUES HERE # ##########################################
 
     darr = [[None for x in range(2)] for y in range(n)]  # data array (darr)
-    darr = parseData(filePath, darr, n)
+    darr = parseData(path, darr, n)
 
     # create two separate arrays of proper object types, and store the data in them
     times = [datetime for tempDT in range(n)]
@@ -133,7 +146,7 @@ def execute(quantity, units, increments, xunits):
     loss = separateArraysLoss(darr, loss, n)
 
     # graphing
-    graph(times, loss, today, filePath)
+    graph(times, loss, today, path)
 
 
 def main():
@@ -153,14 +166,14 @@ def main():
         elif re.fullmatch("(\d+)(m|h)", userInput) == None:
             print(error)
         else:
-            quantity = re.search("(\d+)", userInput)[0]
-            units = re.search("(m|h)", userInput)[0]
+            quantity = re.search("(\d+)", userInput)[0] #how many units of time the program will track packet loss for
+            units = re.search("(m|h)", userInput)[0] #units of time for quantity
             axisInput = input("Enter the x-axis gradiations in the same format: \n")
             if re.fullmatch("(\d+)(m|h)", axisInput) == None:
                 print(error)
             else:
-                increments = re.search("(\d+)", axisInput)[0]
-                axisUnits = re.search("(m|h)", axisInput)[0]
+                increments = re.search("(\d+)", axisInput)[0] #increment distance
+                axisUnits = re.search("(m|h)", axisInput)[0] #units of increments
                 execute(quantity, units, increments, axisUnits)
 
 
