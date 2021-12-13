@@ -102,7 +102,7 @@ def graph(x, y, today, filePath, increments, xunits):
     ax.xaxis.set_major_locator(fmt)
     ax.plot(x, y)
     plt.savefig(filePath[:-4], dpi=300)
-    print("\nOutput saved to " + filePath[:-4] + ".png\n")
+    print("\n\nOutput saved to " + filePath[:-4] + ".png\n")
 
 
 def execute(quantity, units, increments, xunits):
