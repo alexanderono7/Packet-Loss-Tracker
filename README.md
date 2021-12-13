@@ -3,10 +3,11 @@
 A simple program which tracks packet loss for a given time period and then graphs it onto a line graph using matplotlib.
 I created this program in order to show my friends how bad the internet is at my college apartment.
 
-Output examples:
+Output example:
 
-![Alt text](https://github.com/alexanderono7/Packet-Loss-Tracker/blob/main/example_images/10-13-2021_packetLoss.png "Test")
+![Alt text](https://github.com/alexanderono7/Packet-Loss-Tracker/blob/main/example_images/10-13-2021_packetLoss.png "Boy, I'm sure glad I'm paying for this!")
 
+(Output images will be generated in the ./data directory)
 # Dependencies:
 
 fping (for linux command line)
